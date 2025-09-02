@@ -37,6 +37,8 @@ Players must guess a 5-letter word within 6 attempts, with helpful color-coded f
 Welcome to Wordle!
 Your mission: Guess the 5-letter word in 6 tries or fewer.
 
+<https://github.com/AnrieAlm/Wordle/blob/main/WelcomeScreen.png>
+
 Attempt 1/6. Enter a 5-letter word:
 Feedback: _  *  _  _  *
 
