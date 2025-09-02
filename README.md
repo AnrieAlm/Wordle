@@ -39,6 +39,8 @@ Your mission: Guess the 5-letter word in 6 tries or fewer.
 
 <https://github.com/AnrieAlm/Wordle/blob/main/WelcomeScreen.png>
 
+Game Play
+<https://github.com/AnrieAlm/Wordle/blob/main/GamePlay.png>
 Attempt 1/6. Enter a 5-letter word:
 Feedback: _  *  _  _  *
 
