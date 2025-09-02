@@ -1,0 +1,462 @@
+//Anriel Mariel Almeida
+//Student no. 3168178
+package griffith;
+import java.util.Locale;
+import java.util.Random;
+import java.util.Scanner;
+// using word with not repeating letters
+public class Wordle { 																	// creating word banks for the game
+	private static final String[] WORD_BANK_ENGLISH = {"print", "entry", "taken", "mango", "table", "actor", "plane"};
+	private static final String[] WORD_BANK_FRENCH ={"juste", "table", "champ", "avion", "froid", "monde", "pluie"}; // French
+	private static final String[] WORD_BANK_PORTUGUESE =  {"porta", "prato", "fardo", "avião", "coisa", "comer", "chuva"};  // Portuguese
+	private static final int MAX_GUESSES = 6;
+
+
+	public static final String RESET = "\033[0m";		// ANSI color codes / reset colours to original after use 
+	public static final String BLUE = "\033[0;34m";    // BLUE
+	public static final String GREEN = "\033[0;32m";   // GREEN
+	public static final String YELLOW = "\033[0;33m";  // YELLOW
+	public static final String GRAY = "\033[0;90m";
+	public static final String PURPLE = "\033[0;35m";  // PURPLE
+	public static final String BLACK = "\033[0;30m";   // BLACK
+	public static final String RED = "\033[0;31m";     // RED
+	public static final String BOLD = "\033[1m";
+
+	private static int languageIndex = 0; // setting index to = 0 = English, 1 = French, 2 = Portuguese
+
+	public static void main(String[] args) {					// calling methods in main
+
+		selectLanguage();
+		displayWordle();
+		displayWelcomeScreen();
+
+		Scanner scanner = new Scanner(System.in);
+		boolean playing = true;
+
+		while (playing) {
+			System.out.println(BLACK + "Press Enter to start or type 'menu'/'quit'/'restart'\nAppuyez sur Entrée pour commencer ou tapez 'menu'/'quit'/'restart'\nPressione Enter para iniciar ou digite 'menu'/'quit'/'restart'" + RESET);
+			String command = scanner.nextLine().trim().toLowerCase(Locale.ROOT); //input not case sensitive or spaces
+
+			switch (command) { //switch for menu/quit
+			case "menu":
+				displayMenu(scanner);
+				break;
+			case "quit":
+				playing = false;
+				break;
+			case "restart":
+				playGame(scanner);
+			default:
+				playGame(scanner);
+			}
+		}
+		scanner.close();
+	}
+	private static void selectLanguage() { // language selection, using switch statements, 1-3 + invalid input
+		Scanner scanner = new Scanner(System.in);
+		System.out.println( "Select a language:\n1. English" );
+		System.out.println("Sélectionnez une langue :\n2. Français");
+		System.out.println("Selecione um idioma:\n3. Português");
+
+		System.out.print("Enter your choice (1-3):, Veuillez sélectionner (1-3),Por favor, selecione (1-3) ");
+
+		while (true) {
+			String choice = scanner.nextLine().trim();
+			switch (choice) {
+			case "1":
+				languageIndex = 0;
+				return;
+			case "2":
+				languageIndex = 1;
+				return;
+			case "3":
+				languageIndex = 2;
+				return;
+			default:
+				System.out.println(RED + "Invalid choice: Please select 1, 2, or 3." 
+						+  "Choix invalide: Veuillez sélectionner 1, 2 ou 3." 
+						+  "Escolha inválida: Por favor, selecione 1, 2 ou 3." + RESET);
+			}
+		}}
+
+	private static void displayWordle() {
+		String wordleArt= BOLD + BLUE +
+				"*************************************************************************************\n" +
+				"██╗    ██╗ ██████╗ ██████╗ ██████╗ ██╗     ███████╗\n" +
+				"██║    ██║██╔═══██╗██╔══██╗██╔══██╗██║     ██╔════╝\n" +
+				"██║ █╗ ██║██║   ██║██████╔╝██╔══██╗██║     █████╗  \n" +
+				"██║███╗██║██║   ██║██╔══██╗██║  ██║██║     ██╔══╝  \n" +
+				"╚███╔███╔╝╚██████╔╝██║  ██║██████╔╝███████╗███████╗\n" +
+				" ╚══╝╚══╝  ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝\n" +
+				"**************************************************************************************" +
+				RESET; 
+		System.out.println(wordleArt);
+	}
+
+
+	private static void displayWelcomeScreen() { // rules displayed first on screen to help player/ but can be chosen by player in menu
+		String welcomeArt;						// to make game user friendly
+
+		if (languageIndex==0) { 				// display depending on language chosen/ using switch statements
+			welcomeArt=
+
+					BOLD + BLUE + "Welcome to Wordle!\n" +
+							"**************************************************************************************\n" + RESET +
+							"\n" +
+							BOLD + PURPLE + "Your mission: Guess the 5-letter word in 6 tries or fewer.\n" + RESET +
+							"\n" +
+							BLACK + "Rules:" + RESET + "\n" +
+							"1. " + BLACK + "Each guess must be a valid 5-letter word." + RESET + "\n" +
+							"2. " + BLACK + "Do not repeat letters." + RESET + "\n" +
+							"3. " + BLACK + "After each guess, the letters will be highlighted as follows:" + RESET + "\n" +
+							"   - " + BOLD + GREEN + "Green: Correct letter in the correct position." + RESET + "\n" +
+							"   - " + BOLD + YELLOW + "Yellow * : Correct letter in the wrong position." + RESET + "\n" +
+							"   - " + BOLD + GRAY + "Gray: Letter not in the word." + RESET + "\n" +
+							"\n" +
+							BOLD + BLUE + "**************************************************************************************\n" + RESET +
+							PURPLE + "Think carefully, and have fun!" + RESET;
+
+
+			System.out.println(welcomeArt);
+		}
+		else if (languageIndex==1) {						//adding a rule to not input words with repeating letters
+			welcomeArt=
+
+					BOLD + BLUE + "Bienvenue dans Wordle!\n" +
+							"**************************************************************************************\n" + RESET +
+							"\n" +
+							BOLD + PURPLE + "Votre mission: Devinez le mot de 5 lettres en 6 essais ou moins.\n" + RESET +
+							"\n" +
+							BLACK + "Règles:" + RESET + "\n" +
+							"1. " + BLACK + "Chaque essai doit être un mot valide de 5 lettres." + RESET + "\n" +
+							"2. " + BLACK + "Entrez un mot sans lettres répétées." + RESET + "\n" +
+							"3. " + BLACK +  "Après chaque essai, les lettres seront mises en évidence comme suit :" + RESET + "\n" +
+							"   - " + BOLD + GREEN + "Vert : Lettre correcte à la bonne position." + RESET + "\n" +
+							"   - " + BOLD + YELLOW + "Jaune * : Lettre correcte à la mauvaise position." + RESET + "\n" +
+							"   - " + BOLD + GRAY +  "Gris : Lettre qui ne se trouve pas dans le mot." + RESET + "\n" +
+							"\n" +
+							BOLD + BLUE + "**************************************************************************************\n" + RESET +
+							PURPLE + "Réfléchissez bien, et amusez-vous !!" + RESET;
+
+			System.out.println(welcomeArt);
+		}
+		else  {
+			welcomeArt=
+
+					BOLD + BLUE + "Bem-vindo ao Wordle!\n\n" +
+							"**************************************************************************************\n" + RESET +
+							"\n" +
+							BOLD +PURPLE + "Sua missão: Adivinhe a palavra de 5 letras em 6 tentativas ou menos.\n" + RESET +
+							"\n" +
+							BLACK + "Regras:" + RESET + "\n" +
+							"1. " + BLACK + "Cada palpite deve ser uma palavra válida de 5 letras." + RESET + "\n" +
+							"2. " + BLACK + "Digite uma palavra sem letras repetidas." + RESET + "\n" +
+							"3. " + BLACK + "Após cada palpite, as letras serão destacadas da seguinte forma:" + RESET + "\n" +
+							"   - " + BOLD + GREEN + "Verde: Letra correta na posição correta." + RESET + "\n" +
+							"   - " + BOLD + YELLOW + "Amarelo * : Letra correta na posição incorreta." + RESET + "\n" +
+							"   - " + BOLD + GRAY + "Cinza: Letra que não está na palavra." + RESET + "\n" +
+							"\n" +
+							BOLD + BLUE + "**************************************************************************************\n" + RESET +
+							PURPLE + "Pense com cuidado, e divirta-se!" + RESET;
+
+			System.out.println(welcomeArt);
+		}}
+
+	private static void displayMenu(Scanner scanner) {
+		if (languageIndex==0) { // depending on language index choosing menu options
+			while (true) {
+				System.out.println(BLUE + "\nMenu Options:" + RESET);
+				System.out.println("1. Quit the game");
+				System.out.println("2. See the rules");
+				System.out.println("3. Restart the current game");
+				System.out.println("4. Play a new game");
+				System.out.print("\nEnter your choice (1-4): ");
+
+				String choice = scanner.nextLine().trim(); // in a string variable user input stored and chooses wanted switch statement 
+				switch (choice) {
+				case "1":
+					System.out.println(RED + "Exiting the game. Thanks for playing!" + RESET);
+					System.exit(0);
+				case "2":
+					displayWelcomeScreen();
+					break;
+				case "3":
+					System.out.println(PURPLE + "Restarting the current game..." + RESET);
+					playGame(scanner);
+					return;
+				case "4":
+					System.out.println(PURPLE + "Starting a new game..." + RESET);
+					playGame(scanner);
+					return;
+				default:
+					System.out.println(RED + "Invalid choice. Please select 1, 2, 3, or 4." + RESET);
+				}}}else if (languageIndex==1) {
+					while (true) {
+						System.out.println(BLUE + "\nOptions du menu:" + RESET);
+						System.out.println("1. Quitter le jeu");
+						System.out.println("2. Voir les règles");
+						System.out.println("3. Redémarrer la partie en cours");
+						System.out.println("4. Jouer une nouvelle partie");
+						System.out.print("\nEnter your choice (1-4): ");
+
+						String choice = scanner.nextLine().trim();
+						switch (choice) {
+						case "1":
+							System.out.println(RED + "Quitter le jeu. Merci d'avoir joué !" + RESET);
+							System.exit(0);
+						case "2":
+							displayWelcomeScreen();
+							break;
+						case "3":
+							System.out.println(PURPLE + "Redémarrage de la partie en cours..." + RESET);
+							playGame(scanner);
+							return;
+						case "4":
+							System.out.println(PURPLE + "Démarrage d'une nouvelle partie..." + RESET);
+							playGame(scanner);
+							return;
+						default:
+							System.out.println(RED + "Choix invalide: Veuillez sélectionner 1, 2,3 ou 4." + RESET);
+						}}}else  {
+							while (true) {
+								System.out.println(BLUE + "\nOpções do menu:" + RESET);
+								System.out.println("1. Sair do jogo");
+								System.out.println("2. Ver as regras");
+								System.out.println("3.Reiniciar o jogo atual");
+								System.out.println("4. Jogar um novo jogo");
+								System.out.print("\nDigite sua escolha (1-4): ");
+
+								String choice = scanner.nextLine().trim();
+								switch (choice) {
+								case "1":
+									System.out.println(RED + "Saindo do jogo. Obrigado por jogar!" + RESET);
+									System.exit(0);
+								case "2":
+									displayWelcomeScreen();
+									break;
+								case "3":
+									System.out.println(PURPLE + "Reiniciando o jogo atual..." + RESET);
+									playGame(scanner);
+									return;
+								case "4":
+									System.out.println(PURPLE + "Iniciando um novo jogo..." + RESET);
+									playGame(scanner);
+									return;
+								default:
+									System.out.println(RED + "Escolha inválida: Por favor, selecione 1, 2,3 ou 4." + RESET);
+								}}}
+	}
+	// method where from a target word is stored in a string , target word is generated from a random word in chosen word bank
+	private static void playGame(Scanner scanner) {
+		String targetWord = getRandomWord();
+
+		if (languageIndex == 0) {					// randomized  target word depends in language chosen
+			playEnglishGame(scanner, targetWord);
+		} else if (languageIndex == 1) {
+			playFrenchGame(scanner, targetWord);
+		} else if (languageIndex == 2) {
+			playPortugueseGame(scanner, targetWord);
+		} else {
+			System.out.println("Language not supported.");
+		}
+	}
+	//
+	private static void playEnglishGame(Scanner scanner, String targetWord) {
+		int attempts = 0;								// initializing attempts
+		String displayWord = "_____";
+
+		while (attempts < MAX_GUESSES) {				 //condition is int attempts less than 6 , MAX GUESSES initialized at start of page
+			System.out.println(BLUE + "\nCurrent Word: " + RESET + displayWord);
+			System.out.print(BOLD + BLUE + "\nAttempt " + RESET + (attempts + 1) + "/" + MAX_GUESSES + // creates a counter/ total , as display
+					". Enter a 5-letter word (or type 'menu' for options): ");//guessed word from user input is saved in string guess
+			String guess = scanner.nextLine().toLowerCase(Locale.ROOT).trim(); //not case-sensitve, no counted spaces before/after word 
+
+			if (guess.equals("menu")) {					// if menu is entered by user
+				displayMenu(scanner);					// takes you to menu method with then waits for the user's selection using the provided Scanner
+				return;									//parameters/ user input entered (1/2/3) to choose menu options
+			}
+
+			if (!isValidGuess(guess)) {					// if guess input doesnt match conditions in ValidGuess method below, invalid input statement 
+				System.out.println(RED + "Invalid input. Please enter a 5-letter word." + RESET);
+				continue;
+			}
+
+			attempts++;
+			String feedback = generateFeedback(targetWord, guess);// generatedFeedback method is called sending 2 parameters to calculate if
+			System.out.println(BOLD + BLUE + "Feedback: " + RESET + feedback);// guess= target and its saved in feedback string
+
+			if (guess.equals(targetWord)) {											//user input/guessed word= target word
+				System.out.println("\n" + BOLD + BLUE + 
+						"**************************************************************************************\n" + RESET +
+						PURPLE + "Congratulations! You guessed the word: " + targetWord + RESET + "\n" + 
+						BOLD + BLUE + "**************************************************************************************\n" + RESET);
+				return; // return if u win
+			}
+		}
+		// if you cant guess after 6 attempts invalid message
+		System.out.println("\n" + BOLD + BLUE + 
+				"**************************************************************************************\n" + RESET +
+				RED + "Sorry, you ran out of attempts. The word was: " + targetWord + RESET + "\n" +
+				BOLD + BLUE + "**************************************************************************************\n" + RESET);
+	}
+	//
+	private static void playFrenchGame(Scanner scanner, String targetWord) { 			//separate methods for each language 
+		int attempts = 0;
+		String displayWord = "_____";
+
+		while (attempts < MAX_GUESSES) {
+			System.out.println(BLUE + "\nMot actuel: " + RESET + displayWord);
+			System.out.print(BOLD + BLUE + "\nEssai " + RESET + (attempts + 1) + "/" + MAX_GUESSES + 
+					". Entrez un mot de 5 lettres (ou tapez 'menu' pour les options): ");
+			String guess = scanner.nextLine().toLowerCase(Locale.ROOT).trim(); //Locale.ROOT used because we are dealing with international special letters
+
+			if (guess.equals("menu")) {   
+				displayMenu(scanner);
+				return;
+			}
+
+			if (!isValidGuess(guess)) {
+				System.out.println(RED + "Entrée invalide. Veuillez entrer un mot de 5 lettres." + RESET);			//red for error
+				continue;
+			}
+
+			attempts++;
+			String feedback = generateFeedback(targetWord, guess);
+			System.out.println(BOLD + BLUE + "Retour:" + RESET + feedback);
+
+			if (guess.equals(targetWord)) {
+				System.out.println("\n" + BOLD + BLUE + 
+						"**************************************************************************************\n" + RESET +
+						PURPLE + "Félicitations ! Vous avez deviné le mot : " + targetWord + RESET + "\n" + 
+						BOLD + BLUE + "**************************************************************************************\n" + RESET);
+				return;
+			}
+		}
+
+		System.out.println("\n" + BOLD + BLUE + 
+				"**************************************************************************************\n" + RESET +
+				RED + "Dommage, vous avez épuisé vos essais. Le mot était : " + targetWord + RESET + "\n" +
+				BOLD + BLUE + "**************************************************************************************\n" + RESET);
+	}
+	//
+	private static void playPortugueseGame(Scanner scanner, String targetWord) {
+		int attempts = 0;
+		String displayWord = "_____";
+
+		while (attempts < MAX_GUESSES) {
+			System.out.println(BLUE + "\nPalavra atual: " + RESET + displayWord);
+			System.out.print(BOLD + BLUE + "\nTentativa " + RESET + (attempts + 1) + "/" + MAX_GUESSES + 
+					". Digite uma palavra de 5 letras (ou digite 'menu' para opções): ");
+			String guess = scanner.nextLine().toLowerCase(Locale.ROOT).trim();
+
+			if (guess.equals("menu")) { //go to menu
+				displayMenu(scanner);
+				return;
+			}
+
+			if (!isValidGuess(guess)) { 
+				System.out.println(RED + "Entrada inválida. Por favor, insira uma palavra de 5 letras." + RESET);
+				continue;
+			}
+			attempts++; // increase attempt count
+			String feedback = generateFeedback(targetWord, guess);
+			System.out.println(BOLD + BLUE + "Feedback: " + RESET + feedback);
+
+			if (guess.equals(targetWord)) { // if guess= target word u win
+				System.out.println("\n" + BOLD + BLUE + 
+						"**************************************************************************************\n" + RESET +
+						PURPLE + "Parabéns! Você adivinhou a palavra: " + targetWord + RESET + "\n" + 
+						BOLD + BLUE + "**************************************************************************************\n" + RESET);
+				return;
+			}
+		}
+		System.out.println("\n" + BOLD + BLUE +  
+				"**************************************************************************************\n" + RESET +
+				RED + "Que pena, você esgotou as tentativas. A palavra era: " + targetWord + RESET + "\n" +
+				BOLD + BLUE + "**************************************************************************************\n" + RESET);
+	}
+
+	private static String generateFeedback(String targetWord, String guess) {
+		// Initialize feedback with underscores
+		StringBuilder feedback = new StringBuilder("_____");
+		boolean[] matched = new boolean[targetWord.length()];  // creating array to remember matched words
+		boolean[] used = new boolean[targetWord.length()]; //check characters stored
+		// First loop - Check for exact matches (green)
+		for (int i = 0; i < guess.length(); i++) { // loops through each character of the word , 
+			//condition to be checked of guessed character at position i matches target character at position i // then feedback is set to that character 
+			if (guess.charAt(i) == targetWord.charAt(i)) {
+				feedback.setCharAt(i, guess.charAt(i)); //set to the character in feedback display
+				matched[i] = true; // Mark as matched
+				used[i] = true; //boolean set to true if position found
+			}
+		}
+
+		// Second loop - Check for wrong positions (yellow) and unmatched (gray)
+		for (int i = 0; i < guess.length(); i++) { // loop through the whole word and check if at current position character is not matched
+			if (!matched[i]) { // position not matched
+				char guessChar = guess.charAt(i); //  guessed character is at position i is stored in guessChar to use in condition below
+				boolean found = false;  // boolean is set to false for
+
+				for (int j = 0; j < targetWord.length(); j++) {   // checking if it is not stored as found as correct and guessed character is in target word
+					if (!used[j] && !matched[i] && guessChar == targetWord.charAt(j)) { //means write character wrong position if found 
+						feedback.setCharAt(i, '*'); // set as *
+						matched[j] = true; // Mark target character as matched
+						found = true; // boolean set to true then break loop
+						break;
+					}
+				}
+
+				if (!found) {
+					feedback.setCharAt(i, '_'); // Mark as _ if not in above condition
+				}
+			}
+		}
+
+		// Final pass - Apply colors
+		StringBuilder coloredFeedback = new StringBuilder();  						// new string builder used to change and add modified characters
+		for (int i = 0; i < feedback.length(); i++) { //loops through  each character 
+			char c = feedback.charAt(i); // if character c at feedback at position i 
+			if (c == '_') { // is c is _ then make it grey
+				coloredFeedback.append(GRAY).append('_').append(RESET);// will have to use (COLOUR).append(character).(REEST) to return to original
+			} else if (c == '*') {
+				coloredFeedback.append(YELLOW).append('*').append(RESET); 					// yellow * appended to new string
+			} else {
+				coloredFeedback.append(GREEN).append(c).append(RESET);						// normal letter is appended as set builder is used 
+			}
+			//	coloredFeedback.append(' '); 												// Add space between characters
+		}
+
+		return coloredFeedback.toString().trim(); // the new string is returned with correct coloring
+	}
+
+
+	private static String getRandomWord() {
+		Random random = new Random(); 						// chooses a random word from word bank of required language and gives it to 
+		switch(languageIndex) { 						//switch for choosing from a required language Word bank
+		case 0:  																	// English
+			return WORD_BANK_ENGLISH[random.nextInt(WORD_BANK_ENGLISH.length)];
+		case 1:  																	// French
+			return WORD_BANK_FRENCH[random.nextInt(WORD_BANK_FRENCH.length)];
+		case 2:  																	// Portuguese
+			return WORD_BANK_PORTUGUESE[random.nextInt(WORD_BANK_PORTUGUESE.length)];
+		default:																	// keeps English as default 
+			return WORD_BANK_ENGLISH[random.nextInt(WORD_BANK_ENGLISH.length)];
+		}
+	}
+
+	private static boolean isValidGuess(String guess) { 				//if the answer matches conditions
+		switch(languageIndex) {
+		case 0:  // English
+			return guess.length() == 5 && guess.matches("[a-zA-Z]+");// will return the result only if the length is of 5+ alphabets in English(not case sensitive)
+		case 1:  // French
+			return guess.length() == 5 && guess.matches("[a-zA-ZàâçéèêëîïôûùüÿæœÀÂÇÉÈÊËÎÏÔÛÙÜŸÆŒ]+");//extra characters for French
+		case 2:  // Portuguese
+			return guess.length() == 5 && guess.matches("[a-zA-ZáàâãéèêíïóôõöúûüçÁÀÂÃÉÈÊÍÏÓÔÕÖÚÛÜÇ]+");
+		default:																					// English is default language
+			return guess.length() == 5 && guess.matches("[a-zA-Z]+");
+		}
+
+
+	}
+
+}
